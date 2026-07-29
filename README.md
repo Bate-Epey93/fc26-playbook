@@ -1,4 +1,4 @@
-# FC 26 Playbook — Novice to Solid
+# FC 26 Playbook — Novice to Elite
 
 An interactive, installable PWA of a personal FC 26 tactical playbook, built for a Rivals climb toward Division 1 and Elite. Built around a specific squad (R9, Sanchez, Azkona, Cahill, McKennie, Rice, Marquinhos, Acerbi, Timber), starting from three leaks — defending, winning the ball back, build-up — and extending into set pieces, elite attacking patterns, and per-formation game plans.
 
