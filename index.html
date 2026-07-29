@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>FC 26 Playbook</title>
+  <meta name="description" content="From Novice to Solid — interactive FC 26 tactical playbook.">
+  <meta name="theme-color" content="#05081c">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="splash" aria-hidden="true">
+    <div class="enso-spin eicon" data-icon="enso"></div>
+    <div class="word">FC 26 Playbook</div>
+    <div class="sub">Novice → Solid</div>
+  </div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <span class="crest" aria-hidden="true"><span class="eicon" data-icon="enso-dot"></span></span>
+      <div class="titles">
+        <h1>FC 26 Playbook</h1>
+        <p class="subtitle">From Novice to Solid</p>
+      </div>
+      <span class="badge-squad" id="squadBadge" title="Your squad"><span>11 · 4-2-3-1</span></span>
+    </div>
+  </header>
+
+  <main id="view" class="view" tabindex="-1"><!-- section rendered by app.js --></main>
+
+  <nav class="tabbar" role="tablist" aria-label="Playbook sections">
+    <button class="tab" data-tab="laws"    role="tab"><span class="tab-ico eicon" data-icon="book"></span><span class="tab-lbl">Laws</span></button>
+    <button class="tab" data-tab="setup"   role="tab"><span class="tab-ico eicon" data-icon="chart"></span><span class="tab-lbl">Setup</span></button>
+    <button class="tab" data-tab="defend"  role="tab"><span class="tab-ico eicon" data-icon="wall"></span><span class="tab-lbl">Defend</span></button>
+    <button class="tab" data-tab="press"   role="tab"><span class="tab-ico eicon" data-icon="lightning"></span><span class="tab-lbl">Win Ball</span></button>
+    <button class="tab" data-tab="build"   role="tab"><span class="tab-ico eicon" data-icon="sprout"></span><span class="tab-lbl">Build-Up</span></button>
+    <button class="tab" data-tab="routes"  role="tab"><span class="tab-ico eicon" data-icon="sword"></span><span class="tab-lbl">Routes</span></button>
+    <button class="tab" data-tab="adjust"  role="tab"><span class="tab-ico eicon" data-icon="yinyang"></span><span class="tab-lbl">Adjust</span></button>
+    <button class="tab" data-tab="train"   role="tab"><span class="tab-ico eicon" data-icon="weight"></span><span class="tab-lbl">Train</span></button>
+  </nav>
+
+  <div id="sheet" class="sheet" hidden>
+    <div class="sheet-backdrop" data-close></div>
+    <div class="sheet-card" role="dialog" aria-modal="true">
+      <button class="sheet-close" data-close aria-label="Close"><span class="eicon" data-icon="cross-x" data-close></span></button>
+      <div id="sheetBody"></div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="pitch.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

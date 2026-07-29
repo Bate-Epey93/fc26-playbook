@@ -1,0 +1,15 @@
+{
+  "name": "FC 26 Playbook — Novice to Solid",
+  "short_name": "FC26 Playbook",
+  "description": "Interactive tactical playbook: formations, defending system, press triggers, build-up phases and five attack routes.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#05081c",
+  "theme_color": "#05081c",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
