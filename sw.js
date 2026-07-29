@@ -1,4 +1,4 @@
-const CACHE = 'fc26-playbook-v7';
+const CACHE = 'fc26-playbook-v8';
 const ENSO = ['book', 'chart', 'wall', 'lightning', 'sprout', 'sword', 'yinyang', 'weight',
   'play', 'enso', 'enso-dot', 'cross-x', 'check', 'eye', 'drop', 'star', 'sparkle',
   'target', 'run', 'trophy', 'spiral', 'fist'];
@@ -7,6 +7,7 @@ const ASSETS = [
   './index.html',
   './styles.css',
   './data.js',
+  './data-pro.js',
   './pitch.js',
   './app.js',
   './manifest.json',

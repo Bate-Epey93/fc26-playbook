@@ -130,6 +130,57 @@
   }
   function moveToken(tok, x, y) { tok.setAttribute('transform', `translate(${x},${y})`); }
 
+  /* ---------- exploit-zone overlays ---------- */
+  function drawZones(svg, zones, did) {
+    const g = el('g', {}, svg);
+    zones.forEach((z, i) => {
+      const zg = el('g', { opacity: 0 }, g);
+      el('rect', { x: z.x, y: z.y, width: z.w, height: z.h, rx: 14,
+                   fill: 'rgba(0,255,135,.09)', stroke: '#00ff87', 'stroke-width': 2.4,
+                   'stroke-dasharray': '13 9', filter: `url(#${did}-glow)` }, zg);
+      const t = el('text', { x: z.x + z.w / 2, y: z.y + z.h / 2 + 6, 'text-anchor': 'middle',
+                             fill: '#bfffe0', 'font-size': 17, 'font-weight': 900, 'font-style': 'italic',
+                             style: 'paint-order:stroke;stroke:rgba(3,8,26,.85);stroke-width:5px;letter-spacing:.1em' }, zg);
+      t.textContent = z.label;
+      el('animate', { attributeName: 'opacity', values: '0;1;.72;1', dur: '2.4s',
+                      begin: `${.3 + i * .2}s`, repeatCount: 'indefinite' }, zg);
+    });
+    return g;
+  }
+
+  /* ---------- opponent shape board (vs-formations) ---------- */
+  function shapeBoard(container, shape) {
+    container.innerHTML = '';
+    const svg = el('svg', { viewBox: `0 0 ${W} 760`, class: 'pitch-svg', role: 'img',
+                            'aria-label': shape.name + ' opponent shape' });
+    container.appendChild(svg);
+    const did = makeDefs(svg);
+    drawPitch(svg, did);
+    if (shape.zones) drawZones(svg, shape.zones, did);
+    const layer = el('g', {}, svg);
+    shape.spots.forEach((s, i) => {
+      const g = el('g', { opacity: 0 }, layer);
+      el('ellipse', { cy: 16, rx: 19, ry: 7, fill: 'rgba(0,0,0,.5)' }, g);
+      el('circle', { r: 20, fill: `url(#${did}-them)`, stroke: '#5e0b22', 'stroke-width': 2.4 }, g);
+      el('path', { d: 'M -14.4 -6 A 20 20 0 0 1 14.4 -6', stroke: 'rgba(255,255,255,.5)',
+                   'stroke-width': 2, fill: 'none', 'stroke-linecap': 'round' }, g);
+      const t = el('text', { 'text-anchor': 'middle', dy: 5, fill: '#ffe6ec',
+                             'font-size': 13, 'font-weight': 900, 'font-style': 'italic' }, g);
+      t.textContent = s.p;
+      el('animateTransform', { attributeName: 'transform', type: 'translate',
+                               from: `${s.x} ${s.y - 30}`, to: `${s.x} ${s.y}`,
+                               dur: '.5s', begin: `${i * .045}s`, fill: 'freeze',
+                               calcMode: 'spline', keySplines: '.2 .9 .3 1', keyTimes: '0;1' }, g);
+      el('animate', { attributeName: 'opacity', from: 0, to: 1, dur: '.4s',
+                      begin: `${i * .045}s`, fill: 'freeze' }, g);
+    });
+    // "you attack this way" arrow
+    const ar = el('g', { opacity: .5 }, svg);
+    el('path', { d: `M ${W - 44} 720 L ${W - 44} 640 M ${W - 56} 662 L ${W - 44} 640 L ${W - 32} 662`,
+                 stroke: '#04f5ff', 'stroke-width': 3, fill: 'none', 'stroke-linecap': 'round',
+                 filter: `url(#${did}-glow)` }, ar);
+  }
+
   /* ---------- static formation board ---------- */
   function formationBoard(container, onTap) {
     container.innerHTML = '';
@@ -241,13 +292,17 @@
   function scenePlayer(container, scene, opts) {
     opts = opts || {};
     container.innerHTML = '';
-    const view = opts.view || 'top';
+    const view = opts.view || scene.view || 'top';
     const VH = 700;
-    const vb = view === 'full' ? `0 0 ${W} ${H}` : view === 'bottom' ? `0 ${H - VH} ${W} ${VH}` : `0 0 ${W} ${VH}`;
+    const vb = view === 'full' ? `0 0 ${W} ${H}`
+             : view === 'bottom' ? `0 ${H - VH} ${W} ${VH}`
+             : view === 'box' ? `0 0 ${W} 430`
+             : `0 0 ${W} ${VH}`;
     const svg = el('svg', { viewBox: vb, class: 'pitch-svg', role: 'img', 'aria-label': scene.name || 'Play animation' });
     container.appendChild(svg);
     const did = makeDefs(svg);
     drawPitch(svg, did);
+    if (scene.zones) drawZones(svg, scene.zones, did);
     const fxLayer = el('g', {}, svg);
     const tokLayer = el('g', {}, svg);
     const topLayer = el('g', {}, svg);
@@ -487,5 +542,5 @@
     return api;
   }
 
-  window.PITCH = { formationBoard, scenePlayer };
+  window.PITCH = { formationBoard, scenePlayer, shapeBoard };
 })();

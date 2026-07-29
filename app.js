@@ -51,7 +51,7 @@
     let spd = 1;
 
     const player = PITCH.scenePlayer(stage, scene, {
-      view: viewMode || 'top',
+      view: viewMode || scene.view || 'top',
       onTick(t, playing) {
         scrub.value = t;
         playLbl.textContent = playing ? 'Pause' : 'Play';
@@ -328,28 +328,208 @@
   };
 
   SECTIONS.routes = () => {
-    view.innerHTML = `<h2 class="section-title"><span class="eicon" data-icon="sword"></span>Five Attack Routes</h2>
-      <p class="section-sub">Your playbook. Every attack targets one of these. Press play — gold trails are passes, orange is the shot.</p>`;
-    D.routes.forEach((r) => {
+    view.innerHTML = `<h2 class="section-title"><span class="eicon" data-icon="sword"></span>Attack Routes</h2>
+      <p class="section-sub">Every attack targets one of these. Core routes are your foundation; elite routes are what beats a Div 1 defender who reads the core ones.</p>`;
+    const seg = document.createElement('div');
+    seg.className = 'seg';
+    seg.innerHTML = `<button data-r="core" class="on">Core · 5</button><button data-r="elite">Elite · 8</button>`;
+    const host = document.createElement('div');
+    view.append(seg, host);
+
+    const renderRoutes = (kind) => {
+      activePlayers.forEach((p) => p.pause());
+      activePlayers = [];
+      host.innerHTML = '';
+      const list = kind === 'elite' ? D.eliteRoutes : D.routes;
+      if (kind === 'elite') {
+        const intro = document.createElement('div');
+        intro.className = 'card';
+        intro.innerHTML = `<span class="tag blue"><span class="eicon" data-icon="sparkle"></span><span>Elite tier</span></span>
+          <h3>Why these are different</h3>
+          <p class="why">Core routes beat a defensive shape. These beat a <b>person</b> — they attack what a good opponent is actively reading: your body shape, your cross timing, your first touch after winning the ball. Learn two properly rather than all eight badly.</p>`;
+        host.appendChild(intro);
+      }
+      list.forEach((r) => {
+        const c = document.createElement('div');
+        c.className = 'card';
+        c.innerHTML = `<span class="tag gold"><span class="eicon" data-icon="star"></span><span>${kind === 'elite' ? 'Elite' : 'Route'} ${r.n} · ${esc(r.tag)}</span></span>
+          <h3>${esc(r.name)} <span class="pad" style="margin-left:auto">${fmt(r.pad)}</span></h3>
+          <p class="why">${fmt(r.desc)}</p>
+          ${r.why ? `<p class="why" style="margin-top:7px"><b style="color:var(--cyan)">Why it works:</b> ${fmt(r.why)}</p>` : ''}`;
+        host.appendChild(c);
+        playWidget(c, r, r.view);
+      });
+    };
+    renderRoutes('core');
+    seg.addEventListener('click', (e) => {
+      const k = e.target.getAttribute('data-r');
+      if (!k) return;
+      seg.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b === e.target));
+      renderRoutes(k);
+    });
+  };
+
+  SECTIONS.setpieces = () => {
+    view.innerHTML = `<h2 class="section-title"><span class="eicon" data-icon="target"></span>Set Pieces</h2>
+      <p class="section-sub">Free goals against opponents who defend open play better than you attack it. At Elite level, set pieces decide more games than build-up does.</p>`;
+    const seg = document.createElement('div');
+    seg.className = 'seg';
+    seg.innerHTML = `<button data-s="corners" class="on">Corners</button><button data-s="freeKicks">Free kicks</button><button data-s="dead">Pens &amp; throws</button>`;
+    const host = document.createElement('div');
+    view.append(seg, host);
+
+    const render = (k) => {
+      activePlayers.forEach((p) => p.pause());
+      activePlayers = [];
+      host.innerHTML = '';
+      if (k === 'dead') {
+        const pens = document.createElement('div');
+        pens.className = 'card';
+        pens.innerHTML = `<span class="tag gold"><span class="eicon" data-icon="target"></span><span>Penalties</span></span><h3>Five rules</h3>` +
+          D.setPieces.penalties.map((p) => `<div class="kv"><b>${esc(p.t)}</b><span>${fmt(p.d)}</span></div>`).join('');
+        const thr = document.createElement('div');
+        thr.className = 'card';
+        thr.innerHTML = `<span class="tag blue"><span class="eicon" data-icon="run"></span><span>Throw-ins</span></span><h3>Quiet possession leaks</h3>` +
+          D.setPieces.throwIns.map((p) => `<div class="kv"><b>${esc(p.t)}</b><span>${fmt(p.d)}</span></div>`).join('');
+        host.append(pens, thr);
+        return;
+      }
+      D.setPieces[k].forEach((sp) => {
+        const c = document.createElement('div');
+        c.className = 'card';
+        c.innerHTML = `<span class="tag gold"><span class="eicon" data-icon="star"></span><span>${esc(sp.tag)}</span></span>
+          <h3>${esc(sp.name)} <span class="pad" style="margin-left:auto">${fmt(sp.pad)}</span></h3>
+          <p class="why">${fmt(sp.desc)}</p>
+          <p class="why" style="margin-top:7px"><b style="color:var(--cyan)">Why it works:</b> ${fmt(sp.why)}</p>`;
+        host.appendChild(c);
+        playWidget(c, sp, sp.view);
+      });
+      const note = document.createElement('p');
+      note.className = 'footer-note';
+      note.textContent = D.setPieceNote;
+      host.appendChild(note);
+    };
+    render('corners');
+    seg.addEventListener('click', (e) => {
+      const k = e.target.getAttribute('data-s');
+      if (!k) return;
+      seg.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b === e.target));
+      render(k);
+    });
+  };
+
+  SECTIONS.shapes = () => {
+    view.innerHTML = `<h2 class="section-title"><span class="eicon" data-icon="eye"></span>Attacking Shapes</h2>
+      <p class="section-sub">Read their formation in the first two minutes, then run the plan that shape concedes. Red is them — the glowing zones are where their structure leaks.</p>`;
+    const seg = document.createElement('div');
+    seg.className = 'seg seg-wrap';
+    seg.innerHTML = D.shapes.map((s, i) =>
+      `<button data-i="${i}"${i === 0 ? ' class="on"' : ''}>${esc(s.name)}</button>`).join('');
+    const host = document.createElement('div');
+    view.append(seg, host);
+
+    const render = (i) => {
+      const s = D.shapes[i];
+      host.innerHTML = '';
+      const head = document.createElement('div');
+      head.className = 'card';
+      head.innerHTML = `<span class="tag red"><span class="eicon" data-icon="eye"></span><span>${esc(s.freq)}</span></span>
+        <h3>${esc(s.name)}</h3><p class="why">${fmt(s.read)}</p>`;
+      host.appendChild(head);
+      const boardHost = document.createElement('div');
+      boardHost.className = 'pitch-wrap';
+      host.appendChild(boardHost);
+      PITCH.shapeBoard(boardHost, s);
+      const plan = document.createElement('div');
+      plan.className = 'card';
+      plan.innerHTML = `<h3>The plan</h3>
+        <div class="kv"><b>Where the space is</b><span>${fmt(s.space)}</span></div>
+        <div class="kv"><b>How to attack it</b><span>${fmt(s.attack)}</span></div>
+        <div class="kv"><b>What hurts you</b><span>${fmt(s.defend)}</span></div>
+        <div style="margin-top:10px">${s.routes.map((r) => `<span class="chip">${esc(r)}</span>`).join('')}</div>`;
+      host.appendChild(plan);
+    };
+    render(0);
+    seg.addEventListener('click', (e) => {
+      const i = e.target.getAttribute('data-i');
+      if (i === null) return;
+      seg.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b === e.target));
+      render(+i);
+    });
+  };
+
+  SECTIONS.mechanics = () => {
+    view.innerHTML = `<h2 class="section-title"><span class="eicon" data-icon="spiral"></span>Mechanics</h2>
+      <p class="section-sub">Every input mapped to your custom scheme, with the reason each one exists. If a button is not in here, you probably do not need it.</p>`;
+    const note = document.createElement('div');
+    note.className = 'card';
+    note.innerHTML = `<span class="tag red"><span class="eicon" data-icon="lightning"></span><span>Read this first</span></span>
+      <h3>Competitive settings</h3><p class="why">${esc(D.competitiveNote)}</p>`;
+    view.appendChild(note);
+    D.mechanics.forEach((g) => {
       const c = document.createElement('div');
       c.className = 'card';
-      c.innerHTML = `<span class="tag gold"><span class="eicon" data-icon="star"></span><span>Route ${r.n} · ${esc(r.tag)}</span></span>
-        <h3>${esc(r.name)} <span class="pad" style="margin-left:auto">${fmt(r.pad)}</span></h3>
-        <p class="why">${fmt(r.desc)}</p>`;
+      c.innerHTML = `<h3>${esc(g.group)}</h3>` + g.items.map((it) =>
+        `<div class="mech"><span class="pad">${fmt(it.pad)}</span><div><b>${esc(it.n)}</b><p class="why">${fmt(it.d)}</p></div></div>`).join('');
       view.appendChild(c);
-      playWidget(c, r, 'top');
     });
   };
 
   SECTIONS.adjust = () => {
-    view.innerHTML = `<h2 class="section-title"><span class="eicon" data-icon="yinyang"></span>In-Game Adjustments</h2>
-      <p class="section-sub">Mid-match cheat sheet. Tap a situation. Use the D-pad — never ride out a bad game unchanged.</p>`;
-    D.adjust.forEach((a) => {
-      const b = document.createElement('button');
-      b.className = 'situation';
-      b.innerHTML = `<div class="card"><h3>${esc(a.s)}<span class="arrow">▸</span></h3><div class="body">${fmt(a.c)}</div></div>`;
-      b.addEventListener('click', () => b.classList.toggle('open'));
-      view.appendChild(b);
+    view.innerHTML = `<h2 class="section-title"><span class="eicon" data-icon="yinyang"></span>Match Management</h2>
+      <p class="section-sub">Games at this level are won between the goals. Tap any row.</p>`;
+    const seg = document.createElement('div');
+    seg.className = 'seg';
+    seg.innerHTML = `<button data-m="script" class="on">Game script</button><button data-m="reads">Reads</button><button data-m="fix">Quick fixes</button>`;
+    const host = document.createElement('div');
+    view.append(seg, host);
+
+    const render = (m) => {
+      host.innerHTML = '';
+      if (m === 'script') {
+        D.matchScripts.forEach((s) => {
+          const c = document.createElement('div');
+          c.className = 'card';
+          c.innerHTML = `<span class="tag blue"><span class="eicon" data-icon="target"></span><span>${esc(s.phase)}</span></span>
+            <h3>${esc(s.title)}</h3>
+            <ul style="padding-left:18px">${s.bullets.map((b) => `<li style="margin:6px 0">${fmt(b)}</li>`).join('')}</ul>`;
+          host.appendChild(c);
+        });
+        const subs = document.createElement('div');
+        subs.className = 'card';
+        subs.innerHTML = `<span class="tag gold"><span class="eicon" data-icon="run"></span><span>Substitutions</span></span><h3>When to use them</h3>` +
+          D.subPlan.map((s) => `<div class="kv"><b>${esc(s.min)}</b><span>${fmt(s.d)}</span></div>`).join('');
+        host.appendChild(subs);
+        return;
+      }
+      if (m === 'reads') {
+        const intro = document.createElement('p');
+        intro.className = 'section-sub';
+        intro.textContent = 'What they are doing, and the counter. Diagnose in the first fifteen minutes.';
+        host.appendChild(intro);
+        D.reads.forEach((r) => {
+          const b = document.createElement('button');
+          b.className = 'situation';
+          b.innerHTML = `<div class="card"><h3>${esc(r.tell)}<span class="arrow">▸</span></h3><div class="body">${fmt(r.fix)}</div></div>`;
+          b.addEventListener('click', () => b.classList.toggle('open'));
+          host.appendChild(b);
+        });
+        return;
+      }
+      D.adjust.forEach((a) => {
+        const b = document.createElement('button');
+        b.className = 'situation';
+        b.innerHTML = `<div class="card"><h3>${esc(a.s)}<span class="arrow">▸</span></h3><div class="body">${fmt(a.c)}</div></div>`;
+        b.addEventListener('click', () => b.classList.toggle('open'));
+        host.appendChild(b);
+      });
+    };
+    render('script');
+    seg.addEventListener('click', (e) => {
+      const m = e.target.getAttribute('data-m');
+      if (!m) return;
+      seg.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b === e.target));
+      render(m);
     });
   };
 
@@ -366,6 +546,14 @@
     warm.innerHTML = '<h3>10-minute arena warm-up</h3>';
     checklist(warm, 'warmup', D.warmup, (w) => esc(w));
     view.appendChild(warm);
+
+    const elite = document.createElement('div');
+    elite.className = 'card';
+    elite.innerHTML = `<span class="tag blue"><span class="eicon" data-icon="sparkle"></span><span>Elite reps</span></span>
+      <h3>The Div 1 drill set</h3>
+      <p class="why" style="margin-bottom:8px">Run these on competitive assistance, not default. Check them off as they become automatic.</p>`;
+    checklist(elite, 'elitedrills', D.eliteDrills, (d) => `<b>${esc(d.t)}.</b> ${fmt(d.d)}`);
+    view.appendChild(elite);
 
     const set = document.createElement('div');
     set.className = 'card';
@@ -390,7 +578,7 @@
     reset.style.margin = '4px auto 0';
     reset.style.display = 'block';
     reset.textContent = 'Reset week progress';
-    reset.addEventListener('click', () => { store.set('train', []); store.set('warmup', []); SECTIONS.train(); });
+    reset.addEventListener('click', () => { store.set('train', []); store.set('warmup', []); store.set('elitedrills', []); SECTIONS.train(); });
     view.appendChild(reset);
   };
 

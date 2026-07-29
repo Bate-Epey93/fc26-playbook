@@ -316,6 +316,32 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .ctrl-cell b { font-weight: 700; color: var(--ink); }
 
+/* ---------- elite-tier components ---------- */
+.seg.seg-wrap { flex-wrap: wrap; }
+.seg.seg-wrap button { flex: 1 1 84px; font-size: 11px; padding: 8px 4px; }
+
+.chip {
+  display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .02em;
+  padding: 5px 11px; margin: 0 6px 6px 0; border-radius: 999px;
+  background: linear-gradient(115deg, rgba(0, 255, 135, .16), rgba(4, 245, 255, .07));
+  border: 1px solid rgba(0, 255, 135, .38); color: #b6ffdb;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1);
+}
+
+.mech {
+  display: flex; gap: 11px; align-items: flex-start;
+  padding: 10px 2px; border-bottom: 1px solid var(--line);
+}
+.mech:last-child { border-bottom: 0; }
+.mech > .pad { flex: none; margin-top: 1px; min-width: 74px; justify-content: center; }
+.mech b { font-size: 13px; font-weight: 800; display: block; margin-bottom: 2px; }
+.mech .why { font-size: 12.5px; line-height: 1.5; }
+
+@media (max-width: 420px) {
+  .mech { flex-direction: column; gap: 6px; }
+  .mech > .pad { min-width: 0; }
+}
+
 /* ---------- pitch ---------- */
 .pitch-wrap { position: relative; margin: 12px 0 6px; }
 .pitch-svg {
@@ -444,15 +470,21 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* ---------- tab bar ---------- */
 .tabbar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
-  display: flex; justify-content: space-around;
+  display: flex; justify-content: flex-start;
   height: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
   padding-bottom: env(safe-area-inset-bottom, 0px);
   background: rgba(4, 7, 24, .94); backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px); border-top: 1px solid var(--line);
+  overflow-x: auto; overflow-y: hidden; scrollbar-width: none;
+  scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch;
+  -webkit-mask: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
+  mask: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
 }
+.tabbar::-webkit-scrollbar { display: none; }
 .tab {
-  position: relative; flex: 1; display: flex; flex-direction: column; align-items: center;
-  justify-content: center; gap: 4px; color: var(--muted); transition: color .18s ease; min-width: 0;
+  position: relative; flex: 0 0 74px; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 4px; color: var(--muted); transition: color .18s ease;
+  scroll-snap-align: center; padding: 0 2px;
 }
 .tab::before {
   content: ''; position: absolute; top: 0; left: 22%; right: 22%; height: 3px;

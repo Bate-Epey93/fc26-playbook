@@ -1,6 +1,6 @@
 # FC 26 Playbook — Novice to Solid
 
-An interactive, installable PWA of a personal FC 26 tactical playbook. Built around a specific squad (R9, Sanchez, Azkona, Cahill, McKennie, Rice, Marquinhos, Acerbi, Timber) and targeted at three leaks: defending, winning the ball back, and build-up.
+An interactive, installable PWA of a personal FC 26 tactical playbook, built for a Rivals climb toward Division 1 and Elite. Built around a specific squad (R9, Sanchez, Azkona, Cahill, McKennie, Rice, Marquinhos, Acerbi, Timber), starting from three leaks — defending, winning the ball back, build-up — and extending into set pieces, elite attacking patterns, and per-formation game plans.
 
 **Live:** https://bate-epey93.github.io/fc26-playbook/
 
@@ -11,9 +11,12 @@ An interactive, installable PWA of a personal FC 26 tactical playbook. Built aro
 - **Defend** — the five-step defending sequence plus animated jockey, cutback-cover, and cross-defending drills.
 - **Win Ball** — press triggers, the second-man press rule, and an interactive 5-second counter-press timer.
 - **Build-Up** — three phases from the keeper to the final third, with an animated up-back-through line-breaker.
-- **Routes** — five animated attack routes, each scrubbable frame by frame with coach commentary.
-- **Adjust** — in-game situation cheat sheet.
-- **Train** — a one-week plan and a ten-mistakes checklist, both with saved progress.
+- **Routes** — thirteen animated attack routes across two tiers: five core routes, and eight elite routes that beat a defender who already reads the core ones (trivela channel balls, fake-shot cutbacks, wall passes, underlap splits, three-second transitions).
+- **Set Pieces** — animated corner routines (near-post flick, short-corner drag, defending), four free-kick patterns by distance band, plus penalties and throw-ins.
+- **Shapes** — how to attack eight opponent formations, each with an animated opponent board and glowing exploit zones.
+- **Match** — game script by phase, opponent reads with counters, substitution timing, and the situation cheat sheet.
+- **Inputs** — every mechanic mapped to the custom control scheme, with the reason each one exists.
+- **Train** — a one-week plan, an elite drill set, and a ten-mistakes checklist, all with saved progress.
 
 ## Controls
 
