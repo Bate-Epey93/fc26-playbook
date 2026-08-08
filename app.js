@@ -11,6 +11,8 @@
   const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
   // PS chips — user scheme: pass ✕ · shot ▢ · cross ⭕ · through △ · sprint R1 · finesse/driven R2 · run trigger L1
   const PSMAP = { X: 'ps-x', O: 'ps-o', SQ: 'ps-sq', TR: 'ps-tr' };
+  // Attack: [X] pass, [SQ] shot, [O] cross, [TR] through.
+  // Defend: [SQ] stand tackle, [O] slide, [X] fight for the ball. Same buttons, different jobs.
   const padHTML = (s) => s.replace(/\[(X|O|SQ|TR|R1|R2|L1|L2)\]/g, (m, k) =>
     PSMAP[k] ? `<i class="psbtn ${PSMAP[k]}" aria-hidden="true"></i>`
              : `<i class="psbtn ps-sh">${k}</i>`);
@@ -135,12 +137,99 @@
     view.appendChild(note);
   };
 
+  SECTIONS.fixes = () => {
+    view.innerHTML = `<h2 class="section-title"><span class="eicon" data-icon="target"></span>Fix List</h2>
+      <p class="section-sub">Six things you named. Each one gets the mechanic behind it, the rules that change it, a drill with a pass mark, and an animation of the fix.</p>`;
+    const seg = document.createElement('div');
+    seg.className = 'seg';
+    seg.innerHTML = `<button data-k="defence" class="on">Defence · 3</button><button data-k="attack">Attack · 3</button><button data-k="binds">Bindings</button>`;
+    const host = document.createElement('div');
+    view.append(seg, host);
+
+    const render = (k) => {
+      activePlayers.forEach((p) => p.pause());
+      activePlayers = [];
+      host.innerHTML = '';
+
+      if (k === 'binds') {
+        const intro = document.createElement('div');
+        intro.className = 'card';
+        intro.innerHTML = `<span class="tag red"><span class="eicon" data-icon="lightning"></span><span>Do this first</span></span>
+          <h3>Ten minutes that make everything else exact</h3><p class="why">${esc(D.bindingsNote)}</p>`;
+        host.appendChild(intro);
+        D.bindings.forEach((b, i) => {
+          const c = document.createElement('div');
+          c.className = 'card';
+          c.innerHTML = `<h3><span class="num">${i + 1}</span>${esc(b.q)}</h3>
+            <div class="kv"><b>How to check</b><span>${fmt(b.how)}</span></div>
+            <div class="kv"><b>Why it matters</b><span>${fmt(b.why)}</span></div>`;
+          host.appendChild(c);
+        });
+        return;
+      }
+
+      D.fixes.filter((f) => f.side === k).forEach((f) => {
+        const c = document.createElement('div');
+        c.className = 'card';
+        c.innerHTML = `<span class="tag ${k === 'defence' ? 'red' : 'gold'}"><span class="eicon" data-icon="${k === 'defence' ? 'wall' : 'sword'}"></span><span>Fix ${f.n} · ${k}</span></span>
+          <h3>${esc(f.title)}</h3>
+          <p class="why"><b style="color:var(--red)">What happens:</b> ${fmt(f.symptom)}</p>
+          <p class="why" style="margin-top:8px"><b style="color:var(--cyan)">Why it happens:</b> ${fmt(f.rootCause)}</p>
+          ${f.modelNote ? `<p class="why" style="margin-top:8px;font-size:12.5px;opacity:.85"><b>Note:</b> ${fmt(f.modelNote)}</p>` : ''}`;
+        host.appendChild(c);
+
+        playWidget(c, D.fixScenes[f.id], D.fixScenes[f.id].view);
+
+        const pr = document.createElement('div');
+        pr.className = 'card';
+        pr.innerHTML = `<h3>The rules</h3>` + f.principles.map((p, i) =>
+          `<div class="mech"><span class="num">${i + 1}</span><div><b>${esc(p.t)}</b><p class="why">${fmt(p.d)}</p></div></div>`).join('');
+        host.appendChild(pr);
+
+        const dr = document.createElement('div');
+        dr.className = 'card';
+        dr.innerHTML = `<span class="tag blue"><span class="eicon" data-icon="weight"></span><span>Drill</span></span>
+          <h3>${esc(f.drill.name)}</h3>
+          <div class="kv"><b>Where</b><span>${fmt(f.drill.where)}</span></div>
+          <div class="kv"><b>Setup</b><span>${fmt(f.drill.setup)}</span></div>
+          <div class="kv"><b>Reps</b><span>${fmt(f.drill.reps)}</span></div>
+          <div class="kv"><b>Pass mark</b><span>${fmt(f.drill.success)}</span></div>
+          ${f.countNote ? `<p class="why" style="margin-top:9px"><b style="color:var(--cyan)">Honest caveat:</b> ${fmt(f.countNote)}</p>` : ''}`;
+        host.appendChild(dr);
+
+        const cu = document.createElement('div');
+        cu.className = 'card';
+        cu.innerHTML = `<h3>In-match cues</h3><div>${f.cues.map((x) => `<span class="chip">${fmt(x)}</span>`).join('')}</div>`;
+        host.appendChild(cu);
+
+        const mi = document.createElement('div');
+        mi.className = 'card';
+        mi.innerHTML = `<span class="tag red"><span class="eicon" data-icon="cross-x"></span><span>Habits to kill</span></span><h3>Tap for the fix</h3>`;
+        f.mistakes.forEach((m, i) => {
+          const d = document.createElement('div');
+          d.className = 'mistake';
+          d.innerHTML = `<div class="head"><span class="num" style="background:var(--red);color:#fff">${i + 1}</span>${fmt(m.m)}</div><div class="fix">✔ ${fmt(m.f)}</div>`;
+          d.addEventListener('click', () => d.classList.toggle('open'));
+          mi.appendChild(d);
+        });
+        host.appendChild(mi);
+      });
+    };
+    render('defence');
+    seg.addEventListener('click', (e) => {
+      const k = e.target.getAttribute('data-k');
+      if (!k) return;
+      seg.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b === e.target));
+      render(k);
+    });
+  };
+
   SECTIONS.setup = () => {
     view.innerHTML = `<h2 class="section-title"><span class="eicon" data-icon="chart"></span>Your Setup</h2>
       <p class="section-sub">Tap any player for their role card. Switch shape to preview the Plan B preset.</p>`;
     const segWrap = document.createElement('div');
     segWrap.className = 'seg';
-    segWrap.innerHTML = `<button data-f="4231" class="on">4-2-3-1 · Fortress</button><button data-f="3421">3-4-2-1 · Plan B</button>`;
+    segWrap.innerHTML = `<button data-f="433" class="on">4-3-3 · Your shape</button><button data-f="4231">4-2-3-1 · Plan B</button>`;
     view.appendChild(segWrap);
 
     const boardHost = document.createElement('div');
@@ -151,7 +240,7 @@
 
     const board = PITCH.formationBoard(boardHost, (id) => {
       const p = D.players[id];
-      openSheet(`<span class="tag gold"><span class="eicon" data-icon="target"></span><span>${esc(p.pos)}</span></span><h2>${esc(p.name)}</h2>
+      openSheet(`<span class="tag gold"><span class="eicon" data-icon="target"></span><span>${esc(p.pos)}${p.ovr ? ' · ' + p.ovr : ''}</span></span><h2>${esc(p.name)}</h2>
         <h4>Role</h4><p>${esc(p.role)}</p>
         <h4>Job in your system</h4><p>${esc(p.note)}</p>`);
     });
@@ -159,8 +248,8 @@
       board.setFormation(fid);
       desc.innerHTML = `<b>${esc(D.formations[fid].label)}</b> — ${esc(D.formations[fid].desc)}`;
     };
-    board.setFormation('4231', true);
-    desc.innerHTML = `<b>${esc(D.formations['4231'].label)}</b> — ${esc(D.formations['4231'].desc)}`;
+    board.setFormation('433', true);
+    desc.innerHTML = `<b>${esc(D.formations['433'].label)}</b> — ${esc(D.formations['433'].desc)}`;
     segWrap.addEventListener('click', (e) => {
       const f = e.target.getAttribute('data-f');
       if (!f) return;
@@ -190,25 +279,37 @@
         <div class="ctrl-cell">${padHTML('[L2]')}<b>Jockey / shield</b></div>
         <div class="ctrl-cell">${padHTML('[R2]')}<b>2nd-man press</b></div>
       </div>
-      <p class="why" style="margin-top:9px">Every button in this app matches this scheme — sprint on ${padHTML('[R1]')}, all finesse/driven balls on ${padHTML('[R2]')}, shot on ${padHTML('[SQ]')}, cross on ${padHTML('[O]')}.</p>`;
+      <h4 style="font-size:11px;color:var(--cyan);letter-spacing:.2em;text-transform:uppercase;margin:14px 0 7px">Same buttons, defending</h4>
+      <div class="ctrl-grid">
+        <div class="ctrl-cell">${padHTML('[SQ]')}<b>Stand tackle</b></div>
+        <div class="ctrl-cell">${padHTML('[O]')}<b>Slide</b></div>
+        <div class="ctrl-cell">${padHTML('[X]')}<b>Fight for ball</b></div>
+        <div class="ctrl-cell">${padHTML('[L2]')}<b>Jockey</b></div>
+      </div>
+      <p class="why" style="margin-top:9px">Face buttons carry two jobs. ${padHTML('[SQ]')} shoots in attack and stand-tackles in defence; ${padHTML('[O]')} crosses in attack and slides in defence. Every page in this app follows that.</p>`;
     view.appendChild(ctrl);
 
     const gaps = document.createElement('div');
     gaps.className = 'card';
-    gaps.innerHTML = `<h3>Two gaps to fill</h3>
-      <p>• <b>LB:</b> any cheap one with 80+ pace, nothing fancy.<br>• <b>GK:</b> prioritize reflexes and positioning.</p>
-      <p class="why" style="margin-top:6px">Upgrade later, not now: once cheap goals stop, Marquinhos → Ball-Playing Defender (Build-Up), Line Height 55–60.</p>`;
+    gaps.innerHTML = `<span class="tag ok"><span class="eicon" data-icon="sparkle"></span><span>Squad identity</span></span>
+      <h3>A combination side, not a crossing side</h3>
+      <p class="why">${fmt(D.identity)}</p>
+      <h4 style="font-size:11px;color:var(--cyan);letter-spacing:.2em;text-transform:uppercase;margin:14px 0 6px">What you are good at</h4>
+      ${D.strengths.map((x) => `<p class="why" style="margin:5px 0">• ${fmt(x)}</p>`).join('')}
+      <h4 style="font-size:11px;color:#ff7d9d;letter-spacing:.2em;text-transform:uppercase;margin:14px 0 6px">What you cannot do</h4>
+      ${D.weaknesses.map((x) => `<p class="why" style="margin:5px 0">• ${fmt(x)}</p>`).join('')}`;
     view.appendChild(gaps);
 
     const roster = document.createElement('div');
     roster.className = 'card';
-    roster.innerHTML = '<h3>Squad & roles</h3>';
+    roster.innerHTML = '<h3>Squad &amp; roles</h3><p class="why" style="margin-bottom:9px">Tap a player for the role card and their specific job.</p>';
     const grid = document.createElement('div');
     grid.className = 'roster';
-    ['GK', 'LB', 'ACE', 'MARQ', 'TIM', 'RICE', 'MCK', 'CAH', 'SAN', 'AZK', 'R9'].forEach((id) => {
+    ['SUZ', 'LUB', 'BARESI', 'CALETA', 'CAFU', 'BECK', 'ABILY', 'PARK', 'NEY', 'WISSA', 'ATH',
+     'RONNIE', 'MASTA', 'PELE', 'FACC'].forEach((id) => {
       const p = D.players[id];
       const b = document.createElement('button');
-      b.innerHTML = `<div class="pos">${esc(p.pos)}</div><div class="nm">${esc(p.name)}</div><div class="rl">${esc(p.role)}</div>`;
+      b.innerHTML = `<div class="pos">${esc(p.pos)}${p.ovr ? ' · ' + p.ovr : ''}</div><div class="nm">${esc(p.name)}</div><div class="rl">${esc(p.role)}</div>`;
       b.addEventListener('click', () => openSheet(`<span class="tag gold"><span class="eicon" data-icon="target"></span><span>${esc(p.pos)}</span></span><h2>${esc(p.name)}</h2>
         <h4>Role</h4><p>${esc(p.role)}</p><h4>Job in your system</h4><p>${esc(p.note)}</p>`));
       grid.appendChild(b);
@@ -289,7 +390,7 @@
         if (s <= 5) {
           bar.style.width = (s / 5 * 100) + '%';
           bar.style.background = 'linear-gradient(90deg,var(--ok),var(--gold))';
-          lbl.innerHTML = `<b style="color:var(--ok)">HUNT — ${(5 - s).toFixed(1)}s.</b> Nearest attacker + short [R2] burst. Rice never joins.`;
+          lbl.innerHTML = `<b style="color:var(--ok)">HUNT — ${(5 - s).toFixed(1)}s.</b> Nearest attacker + short [R2] burst. Beckenbauer never joins.`;
           cpRaf = requestAnimationFrame(step);
         } else {
           bar.style.width = '100%';
@@ -318,10 +419,10 @@
     const tri = document.createElement('div');
     tri.className = 'card';
     tri.innerHTML = `<h3>Key passes &amp; finishes</h3>
-      <div class="kv"><b>Driven pass</b><span>${padHTML('[R2]+[X]')} — into Cahill’s feet</span></div>
-      <div class="kv"><b>Through ball</b><span>${padHTML('[TR]')} — into R9’s run</span></div>
+      <div class="kv"><b>Driven pass</b><span>${padHTML('[R2]+[X]')} — into Park’s feet</span></div>
+      <div class="kv"><b>Through ball</b><span>${padHTML('[TR]')} — into Wissa’s run</span></div>
       <div class="kv"><b>Driven through</b><span>${padHTML('[R2]+[TR]')} — flat and fast in behind</span></div>
-      <div class="kv"><b>Driven cross</b><span>${padHTML('[R2]+[O]')} — far post for Cahill</span></div>
+      <div class="kv"><b>Driven cross</b><span>${padHTML('[R2]+[O]')} — far post for Park</span></div>
       <div class="kv"><b>Shot</b><span>${padHTML('[SQ]')} — low, near post</span></div>
       <div class="kv"><b>Finesse</b><span>${padHTML('[R2]+[SQ]')} — curled far corner</span></div>`;
     view.appendChild(tri);

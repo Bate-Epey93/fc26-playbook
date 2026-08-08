@@ -97,7 +97,8 @@
   /* ---------- tokens ---------- */
   function teamOf(id) {
     if (/^D\d/.test(id)) return 'them';
-    if (id === 'GK') return 'gk';
+    const pl = window.DATA.players[id];
+    if (pl && pl.pos === 'GK') return 'gk';
     return 'us';
   }
   const RING = { us: 'rgba(0,255,135,.9)', them: 'rgba(255,46,99,.85)', gk: 'rgba(4,245,255,.9)' };
@@ -105,7 +106,7 @@
   function shortName(id) {
     const p = window.DATA.players[id];
     if (!p) return '';
-    return p.name.replace(/\s*\(buy\)/, '').split(' ')[0];
+    return p.short || p.name.replace(/\s*\(buy\)/, '').split(' ')[0];
   }
 
   function makeToken(layer, id, x, y, r, did) {

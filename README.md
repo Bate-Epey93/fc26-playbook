@@ -1,11 +1,12 @@
 # FC 26 Playbook — Novice to Elite
 
-An interactive, installable PWA of a personal FC 26 tactical playbook, built for a Rivals climb toward Division 1 and Elite. Built around a specific squad (R9, Sanchez, Azkona, Cahill, McKennie, Rice, Marquinhos, Acerbi, Timber), starting from three leaks — defending, winning the ball back, build-up — and extending into set pieces, elite attacking patterns, and per-formation game plans.
+An interactive, installable PWA of a personal FC 26 tactical playbook, built for a Rivals climb toward Division 1 and Elite. Built around a specific 4-3-3 squad (Suzuki, Lubhbrer, Baresi, Caleta-Car, Cafu, Beckenbauer, Abily, Park, Neymar, Wissa, Athenea) and its actual identity: a combination side with no aerial threat that has to enter the box on the ground. Covers defending, ball recovery, build-up, set pieces, elite attacking patterns, per-formation game plans, and a targeted fix list for six self-diagnosed weaknesses.
 
 **Live:** https://bate-epey93.github.io/fc26-playbook/
 
 ## What's in it
 
+- **Fix List** — the six weaknesses you named, each with the mechanic behind it, the rules that change it, an animated drill, in-match cues, and a bindings check page.
 - **Laws** — the five rules that outrank everything else.
 - **Setup** — animated 4-2-3-1 / 3-4-2-1 formation board with tappable player role cards, team tactics, and a controls reference.
 - **Defend** — the five-step defending sequence plus animated jockey, cutback-cover, and cross-defending drills.
@@ -24,9 +25,9 @@ The playbook is written for a custom PlayStation scheme:
 
 | Action | Button |
 |---|---|
-| Pass | ✕ |
-| Shot | ▢ |
-| Cross | ⭕ |
+| Pass (attack) / Fight for ball (defend) | ✕ |
+| Shot (attack) / Stand tackle (defend) | ▢ |
+| Cross (attack) / Slide tackle (defend) | ⭕ |
 | Through ball | △ |
 | Sprint | R1 |
 | Finesse and all driven balls | R2 |
